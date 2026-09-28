@@ -1,5 +1,0 @@
-spring:
-  application:
-    name: payment-wechat #服务名称
-server:
-  port: 8090 #服务端口
