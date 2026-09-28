@@ -1,0 +1,337 @@
+/* ===================== 页头 ===================== */
+#header {
+  background-color: #fff;
+  box-shadow: 0 2px 3px rgb(7 0 2 / 4%);
+  padding: 24px 0;
+  position: relative;
+}
+
+#logo {
+  float: left;
+  display: table;
+  width: 220px;
+  height: var(--head-h);
+  overflow: hidden;
+}
+
+#logo a {
+  display: table-cell;
+  vertical-align: middle;
+  height: var(--head-h);
+}
+
+#logo a img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.nav {
+  float: left;
+  margin-left: 40px;
+}
+
+.nav li {
+  float: left;
+}
+
+/* 行高与 logo 同高，保证导航文字与 logo 基线对齐 */
+.nav li a {
+  display: block;
+  margin: 0 16px;
+  padding: 0 4px;
+  border-bottom: 2px solid transparent;
+  color: var(--text-2);
+  font-size: 16px;
+  line-height: var(--head-h);
+  transition: color .2s, border-color .2s;
+}
+
+/* ===================== 布局 ===================== */
+.container {
+  width: 1160px;
+  max-width: calc(100% - 48px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#index {
+  padding-bottom: 64px;
+}
+
+.comm-title {
+  clear: both;
+  overflow: hidden;
+  margin: 36px 0 24px;
+}
+
+.comm-title h2 {
+  float: none;
+  /* 模板上的 tac 类会让标题在整行居中，这里保持左对齐与下方内容对齐 */
+  text-align: left;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 28px;
+  color: var(--text-1);
+}
+
+/* ===================== 商品列表 ===================== */
+#index ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+#index li {
+  display: block;
+  margin: 0;
+}
+
+#index a.orderBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 60px;
+  padding: 0 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background-color: #fff;
+  color: var(--text-1);
+  font-size: 16px;
+  text-align: left;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
+}
+
+#index a.orderBtn:hover {
+  border-color: var(--brand);
+  box-shadow: var(--shadow);
+}
+
+#index a.orderBtn.current {
+  border-color: var(--brand);
+  background-color: var(--brand-light);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.orderBtn-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.orderBtn-price {
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#index a.orderBtn.current .orderBtn-price {
+  color: var(--brand);
+}
+
+/* ===================== 支付方式 ===================== */
+.PaymentChannel_payment-channel-panel {
+  position: relative;
+  margin-top: 24px;
+  padding: 20px 24px 24px;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.PaymentChannel_title {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding-left: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.PaymentChannel_title::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+.PaymentChannel_channel-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ChannelOption_payment-channel-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 240px;
+  height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .2s, background-color .2s;
+}
+
+.ChannelOption_payment-channel-option:hover {
+  border-color: var(--brand);
+}
+
+.ChannelOption_payment-channel-option.current {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+/* 选中角标，替代原来内联的 base64 图片 */
+.ChannelOption_payment-channel-option.current::after {
+  content: "\2713";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+}
+
+.ChannelOption_channel-icon {
+  margin-right: 12px;
+}
+
+.ChannelOption_icon {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+
+.ChannelOption_channel-info {
+  position: relative;
+  flex: 1;
+}
+
+.ChannelOption_channel-label {
+  display: flex;
+  align-items: center;
+  height: 21px;
+}
+
+.ChannelOption_label {
+  font-size: 15px;
+  line-height: 1;
+  color: var(--text-1);
+}
+
+.ChannelOption_sub-label,
+.ChannelOption_check-option {
+  flex: 1;
+}
+
+/* ===================== 结算按钮 ===================== */
+.payButtom {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+
+/* ===================== 表格与表单 ===================== */
+#index .el-table {
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+#index .el-form {
+  padding: 24px;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ===================== 页脚 ===================== */
+#footer {
+  width: 100%;
+  padding-top: 28px;
+  border-top: 5px solid #2a2a2a;
+  background-color: #323232;
+  color: var(--text-3);
+  overflow: hidden;
+}
+
+.flink-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 12px;
+}
+
+.flink-list li a {
+  color: #bbb;
+  font-size: 13px;
+  transition: color .2s;
+}
+
+.flink-list li a:hover {
+  color: #fff;
+}
+
+.b-foot {
+  margin-top: 28px;
+  padding: 20px 0 40px;
+  border-top: 1px solid #393939;
+}
+
+.b-f-link {
+  color: #444;
+  line-height: 22px;
+}
+
+.b-f-link a,
+.b-f-link span {
+  display: inline-block;
+  margin: 0 12px 6px 0;
+  color: #999;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.b-f-link a {
+  transition: color .2s;
+}
+
+.b-f-link a:hover {
+  color: #fff;
+}
+
+.mt10 {
+  margin-top: 10px;
+}
+
+/* ===================== 通用工具类 ===================== */
+.bg-fa { background-color: #fafafa; }
+.of { overflow: hidden; }
+.clear { clear: both; display: block; overflow: hidden; visibility: hidden; width: 0; height: 0; }
+.fl { float: left; }
+.fr { float: right; }
+.tac { text-align: center; }
+.hLh30 { height: 30px; line-height: 30px; }
+.c-999 { color: #999; }
+.fsize18 { font-size: 18px; }
+.f-fM { font-family: "Microsoft YaHei"; }
+.col-7 { width: 75%; }
+.mr20 { margin-right: 20px; }

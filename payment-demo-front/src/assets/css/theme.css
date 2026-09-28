@@ -1,0 +1,23 @@
+@charset "utf-8";
+
+/* 设计变量：颜色、圆角、阴影统一从这里取，主色取自 logo 的靛蓝 */
+:root {
+  --brand: #1f3a93;
+  --brand-light: #eef1fb;
+  --accent: #fa8919;
+  --accent-light: #fffaf3;
+  --text-1: #303133;
+  --text-2: #606266;
+  --text-3: #909399;
+  --border: #e7ecf0;
+  --radius: 6px;
+  --shadow: 0 2px 12px rgb(0 0 0 / 6%);
+  --head-h: 72px;
+}
+
+/* 导航当前项与悬停态 */
+.nav li.current a,
+.nav li a:hover {
+  border-bottom-color: var(--brand);
+  color: var(--brand);
+}

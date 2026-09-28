@@ -1,33 +1,22 @@
-HELP.md
+### 构建产物
 target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
+dist/
+*.class
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
+### 前端依赖
+node_modules/
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
+### IDE
+.idea/
 .vscode/
+*.iml
+*.iws
+
+### 本地环境与系统文件
+.DS_Store
+Thumbs.db
+*.local
+.env
+
+### 设计稿原图（ImageGen 产物，非代码）
+vibe_images/
