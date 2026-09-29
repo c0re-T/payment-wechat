@@ -1,0 +1,34 @@
+# 微信支付参数模板
+#
+# 使用方式：复制本文件为同目录下的 wxpay.properties，再填入你自己的商户凭证。
+#   cp wxpay.properties.example wxpay.properties
+#
+# 安全提醒：
+#   1. wxpay.properties 与 *.pem 已在 .gitignore 中排除，切勿提交到仓库；
+#   2. 以下所有值必须是你在微信支付商户平台申请到的自有凭证，
+#      他人的商户号与私钥既不可用，也不得用于发起真实支付。
+
+# 商户号（微信支付分配给商户的唯一标识）
+wxpay.mch-id=你的商户号
+
+# 商户 API 证书序列号（与下面的私钥文件成对，申请证书时生成）
+wxpay.mch-serial-no=你的证书序列号
+
+# 商户 API 私钥文件名，需放在 src/main/resources 下，由 WxPayConfig 从 classpath 读取
+wxpay.private-key-path=apiclient_key.pem
+
+# APIv3 密钥，商户自行设置的 32 位字符串，用于解密回调报文与下载平台证书
+wxpay.api-v3-key=你的32位APIv3密钥
+
+# 公众号 / 小程序 / 开放平台 APPID，需与商户号完成关联
+wxpay.appid=wx0000000000000000
+
+# 微信服务器地址，生产环境固定为此值
+wxpay.domain=https://api.mch.weixin.qq.com
+
+# 接收支付结果通知的公网地址
+# 本地联调需借助 ngrok 等内网穿透工具，且每次隧道地址变化后都要同步修改此处
+wxpay.notify-domain=https://你的公网域名
+
+# APIv2 密钥，仅调用旧版 XML 接口时需要
+wxpay.partnerKey=你的APIv2密钥
