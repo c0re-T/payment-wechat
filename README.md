@@ -3,7 +3,8 @@
 微信支付 / 支付宝支付的练手项目，前后端放在同一个仓库。
 
 > 学习演示项目。**Native 扫码下单链路已跑通**（建单落库 → 调用微信统一下单 → `code_url` 落库 → 前端渲染二维码），
-> 支付结果回调、查单、关单、退款、账单下载的后端接口尚未实现。
+> 支付结果回调与订单列表**代码已写好但未真实联调**（下单时发给微信的 `notify_url` 仍指向不存在的路径，见文末 TODO）；
+> 查单、关单、退款、账单下载的后端接口尚未实现。
 > 仓库内**不包含**任何真实商户凭证，需自行准备，见[配置微信支付参数](#配置微信支付参数)。
 
 ---
@@ -229,7 +230,7 @@ Authorization: WECHATPAY2-SHA256-RSA2048
 自动完成"定时下载 + 缓存 + 轮换"，无需手工放证书文件。
 
 > 验签串拼接的实现见 [`WechatPay2ValidatorForRequest`](payment-demo-back/src/main/java/com/ittxf/paymentwechat/common/util/WechatPay2ValidatorForRequest.java)
-> （用于回调方向，**尚未接入 Controller**）。
+> （用于回调方向，已由 `WxPayController#nativeNotify` 接入）。
 
 ### 机制三：回调报文解密（对称 AES-256-GCM）
 
@@ -330,7 +331,7 @@ sequenceDiagram
 
     W-->>B: 异步 POST notify_url（AES-GCM 加密报文）
     B->>W: 应答 HTTP 200 表示接收成功
-    Note over B,D: ⚠️ 回调接口本项目尚未实现
+    Note over B,D: ⚠️ 回调接口已实现，但下单时 notify_url 仍写成 /wxpay/notify，真实支付收不到通知
 
     F->>F: 状态变为「支付成功」→ 跳转订单列表
 ```
@@ -373,8 +374,9 @@ API   src/api/wxPay.js → POST /api/wx-pay/native/{productId}
 1. 微信异步推送到 `notify_url` 的加密通知（**主路径**）
 2. 商户主动调 `/v3/pay/transactions/out-trade-no/{no}` 查单（**兜底**）
 
-本项目前端用的是"轮询查单"这种简化方式，且查单接口尚未实现，
-所以**目前支付完成后状态不会变化**。
+本项目前端用的是"轮询查单"这种简化方式，而 `query-order-status` 接口尚未实现。
+回调那边虽然已经把库里的订单状态改成「支付成功」，**页面也不会自动跳转**——轮询请求 404，
+得手动刷新订单页才能看到新状态。
 
 ---
 
@@ -386,16 +388,17 @@ API   src/api/wxPay.js → POST /api/wx-pay/native/{productId}
 | --- | --- | --- |
 | GET | `/api/product/list` | 商品列表 |
 | POST | `/api/wx-pay/native/{productId}` | Native 统一下单，返回 `codeUrl` + `orderNo` |
+| POST | `/api/wx-pay/native/notify` | 微信支付异步通知：验签 → AES-256-GCM 解密 → 改订单状态 → 落支付流水。**代码已就位，未做真实联调** |
+| GET | `/api/order-info/list` | 订单列表，按创建时间倒序 |
 
 ### 前端已调用、后端**尚未实现**（会 404）
 
 | 方法 | 路径 | 调用位置 |
 | --- | --- | --- |
-| GET | `/api/order-info/list` | `api/orderInfo.js` → 订单页 |
 | GET | `/api/order-info/query-order-status/{orderNo}` | `api/orderInfo.js` → 支付轮询 |
 | POST | `/api/wx-pay/cancel/{orderNo}` | `api/wxPay.js` → 取消订单 |
 | POST | `/api/wx-pay/refunds/{orderNo}/{reason}` | `api/wxPay.js` → 退款 |
-| POST | `/api/wx-pay/native/notify` | 微信回调（`WxNotifyType.NATIVE_NOTIFY`） |
+| GET | `/api/wx-pay/downloadbill/{billDate}/{type}` | `api/bill.js` → 账单下载 |
 
 > 路径前缀必须前后端严格一致。本项目曾用 `/api/wxpay` 而前端请求 `/api/wx-pay`，
 > 结果请求落到静态资源处理器上抛 `NoResourceFoundException`，
@@ -425,8 +428,10 @@ API   src/api/wxPay.js → POST /api/wx-pay/native/{productId}
 | 建单落库 + 防重复下单 | — | ✅ `OrderInfoServiceImpl#createOrderByProductId` |
 | Native 统一下单 | ✅ 二维码可渲染 | ✅ `POST /api/wx-pay/native/{productId}` |
 | `code_url` 回写数据库 | — | ✅ `saveCodeUrl` |
-| 支付结果回调 notify | — | ❌ 未实现 |
-| 订单列表 / 状态轮询 | 已迁移 | ❌ 未实现（前端调用会 404） |
+| 支付结果回调 notify | — | ⚠️ 代码已实现，未真实联调（`notify_url` 路径不一致，见 TODO） |
+| 支付流水落库 `t_payment_info` | — | ⚠️ 代码已实现，金额字段解析有 bug（见 TODO） |
+| 订单列表 | 已迁移 | ✅ `GET /api/order-info/list`（未实测） |
+| 状态轮询 | 已迁移 | ❌ 未实现（前端调用会 404） |
 | 取消订单 / 退款 | 已迁移 | ❌ 未实现 |
 | 下载账单 | 已迁移 | ❌ 未实现 |
 | 支付宝支付 | 有入口 | ❌ 未接入（点击提示"通道暂未开通"） |
@@ -466,15 +471,27 @@ API   src/api/wxPay.js → POST /api/wx-pay/native/{productId}
 | `code_url` 永远存不进库 | `nativePay` 用 `StringUtils.hasText(orderInfo.getOrderNo())` 判断订单是否已存在，而 orderNo 创单时必然有值 → 条件恒真 → 方法提前返回，下单与回写永不执行 | 改为判断 `codeUrl` |
 | 前端报"非法的类型开始" | 半行未写完的 `private final` 字段声明。解析期错误会**中断编译并掩盖后续所有错误** | 先修语法错，再看真正的编译错误 |
 | 二维码空白但无报错 | 下单失败使 `codeUrl` 为 `null`，`qrcode-vue` 仍会画出空图 | 前端应先判空；后端看日志响应码 |
+| `.gitignore` 里的密钥忽略规则、README 的整段内容在工作区凭空退回旧版，`apiclient_key.pem` 变成"可提交"状态 | 具体触发不明（表现为多个文件精确等于更早一次提交，疑似 IDE 回滚/撤销串）。这类回退不会报错，`git add -A` 就会把私钥推上去 | 每次 push 前看 `git diff --stat` 有没有意外的整段删除，并用 `git check-ignore -v <密钥文件>` 复核；被覆盖的内容用 `git checkout -- <文件>` 从 HEAD 取回 |
 
 ### 代码里已标注、尚未处理的 TODO
 
-- `WxPayServiceImpl` 中 `notify_url` 硬编码 `/wxpay/notify`，与 `WxNotifyType.NATIVE_NOTIFY`
-  （`/api/wx-pay/native/notify`）**不一致**，实现回调时需统一。
-- 应答 `statusCode == 204` 时 `responseBody` 为空串，`gson.fromJson("")` 返回 `null`，
-  紧接 `resultMap.get(...)` 会 **NPE**。
+按是否阻断真实支付排序，前两条不修就收不到、也处理不掉回调。
+
+- **`notify_url` 路径不一致**：`WxPayServiceImpl` 下单时拼的是硬编码 `/wxpay/notify`，
+  而回调 Controller 在 `WxNotifyType.NATIVE_NOTIFY` = `/api/wx-pay/native/notify`。
+  微信会推到前者 → 404 → 订单永远停在「未支付」，同时微信按自己的策略持续重推。
+- **`PaymentInfoServiceImpl#createPaymentInfo` 金额解析必抛 ClassCastException**：
+  代码把 `plainTextMap.get("payer_total")` 当 `Map` 取，而微信明文里 `payer_total` 是整数
+  （顶层和 `amount` 对象里各有一份）；且 Jackson 默认把整数反序列化成 `Integer`，
+  后面那句 `(BigDecimal)` 强转同样会炸。后果是回调处理失败 → 应答 FAIL + 500 → 微信重推。
+  应先取 `amount`，再用 `Number.intValue()` 兜住两种数字类型。
+- `PaymentInfoServiceImpl#createPaymentInfo` 里 `ObjectMapper objectMapper = new ObjectMapper();`
+  遮蔽了构造注入的 `this.objectMapper` 字段，方法实际用的是新建的那个实例。
+- 应答 `statusCode == 204` 时 `responseBody` 是空串：换成 Jackson 后不再是 `gson` 返回 `null`
+  引起的 NPE，而是 `readValue("")` 抛 `JsonProcessingException`（`IOException` 子类）被 catch 转成
+  `BusinessException`——不崩了，但"204 成功无响应体"仍会被当成失败处理。
 - `CloseableHttpResponse` 未关闭，存在连接泄漏，应使用 try-with-resources。
-- `gson.fromJson(responseBody, HashMap.class)` 为原始类型，存在 unchecked 转换。
+- `objectMapper.readValue(responseBody, HashMap.class)` 仍是原始类型，存在 unchecked 转换。
 - `getNoPayOrderByProductId` 用 `selectOne`，同商品存在多条未支付记录时会抛
   `One record is expected, but the query result is multiple records`。
 - `BaseEntity.id` 声明为 `String` 却配 `IdType.AUTO`，自增主键宜用 `Long`。
