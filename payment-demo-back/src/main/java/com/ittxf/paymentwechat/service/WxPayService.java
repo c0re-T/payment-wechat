@@ -22,4 +22,6 @@ public interface WxPayService {
      * @return 至少包含 codeUrl（二维码内容）与 orderNo（商户订单号）两个键
      */
     Map<String, Object> nativePay(Long productId);
+
+    void processOrder(Map<String, Object> bodyMap);
 }

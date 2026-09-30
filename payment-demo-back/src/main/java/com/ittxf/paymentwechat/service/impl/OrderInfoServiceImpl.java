@@ -1,6 +1,7 @@
 package com.ittxf.paymentwechat.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ittxf.paymentwechat.common.enums.OrderStatus;
 import com.ittxf.paymentwechat.common.util.OrderNoUtils;
 import com.ittxf.paymentwechat.entity.OrderInfo;
@@ -12,6 +13,8 @@ import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 订单业务实现。
@@ -69,6 +72,11 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return orderInfo;
     }
 
+    /**
+     * 保存订单二维码地址
+     * @param orderNo
+     * @param codeUrl
+     */
     @Override
     public void saveCodeUrl(String orderNo, String codeUrl) {
         LambdaQueryWrapper<OrderInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -77,6 +85,40 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setCodeUrl(codeUrl);
         baseMapper.update(orderInfo, lambdaQueryWrapper);
         log.info("保存订单二维码地址：orderNo={}, codeUrl={}", orderNo, codeUrl);
+    }
+
+    /**
+     * 根据创建时间降序排列，获取订单列表
+     * @return
+     */
+    @Override
+    public List<OrderInfo> listOrderByCreateTimeDesc() {
+        /*LambdaQueryWrapper<OrderInfo> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.orderByDesc(OrderInfo::getCreateTime);
+        return baseMapper.selectList(lambdaQueryWrapper);*/
+
+        // this 指的就是 OrderInfoServiceImpl 这个对象实例。而这个类继承（extends）了 ServiceImpl。
+        // 所以，this 不仅拥有你自己写的方法，还继承了一堆父类的方法，其中就包括 lambdaQuery()
+        // this.lambdaQuery()：调用父类方法，返回一个 LambdaQueryChainWrapper<OrderInfo> 对象。
+        // .orderByDesc(OrderInfo::getCreateTime)：这是 LambdaQueryChainWrapper 对象的方法。它把排序条件加进去后，返回自己（return this）。
+        // .list()：这是 LambdaQueryChainWrapper 对象的终结方法。它的底层相当于执行了 baseMapper.selectList(wrapper)，执行 SQL，返回 List<OrderInfo> 结果。
+        return this.lambdaQuery()
+                .orderByDesc(OrderInfo::getCreateTime)
+                .list();
+    }
+
+    /**
+     * 根据订单号更新订单状态
+     * @param outTradeNo
+     * @param orderStatus
+     */
+    @Override
+    public void updateStatusByOrderNo(String outTradeNo, OrderStatus orderStatus) {
+        log.info("更新订单状态：outTradeNo={}, orderStatus={}", outTradeNo, orderStatus.getType());
+
+        this.lambdaUpdate().eq(OrderInfo::getOrderNo, outTradeNo)
+                .set(OrderInfo::getOrderStatus, orderStatus.getType())
+                .update();
     }
 
     /**

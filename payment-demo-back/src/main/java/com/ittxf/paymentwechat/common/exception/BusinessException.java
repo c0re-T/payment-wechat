@@ -59,4 +59,19 @@ public class BusinessException extends RuntimeException {
     public BusinessException(String message) {
         this(ResultCodeEnum.FAIL, message);
     }
+
+    /**
+     * 使用默认失败状态码、自定义提示信息构造业务异常，并保留原始异常
+     *
+     * <p>用于把受检异常（如 Jackson 的 JsonProcessingException、网络 IO 异常）
+     * 转换为本项目统一的非受检业务异常，同时通过 cause 保留完整堆栈，
+     * 避免包装后丢失根因。</p>
+     *
+     * @param message 错误提示信息
+     * @param cause   原始异常
+     */
+    public BusinessException(String message, Throwable cause) {
+        super(message, cause);
+        this.code = ResultCodeEnum.FAIL.getCode();
+    }
 }

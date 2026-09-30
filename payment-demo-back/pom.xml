@@ -75,11 +75,6 @@
             <artifactId>wechatpay-apache-httpclient</artifactId>
             <version>0.4.0</version>
         </dependency>
-        <!--Gson：Google 出品的 JSON 与 Java 对象互转工具，版本由 spring-boot-dependencies 统一管理-->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
 
     </dependencies>
 
