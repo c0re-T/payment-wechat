@@ -172,9 +172,9 @@ function toPay () {
       codeDialogVisible.value = true
 
       // 启动定时器
-      /*timer = setInterval(() => {
+      timer = setInterval(() => {
         queryOrderStatus()
-      }, 3000)*/
+      }, 1000)
       // timer = setInterval(queryOrderStatus, 3000)
     })
     return
@@ -193,11 +193,13 @@ function closeDialog () {
 // 查询订单状态
 function queryOrderStatus () {
   orderInfoApi.queryOrderStatus(orderNo.value).then(response => {
+    console.log(response.message)
     // 支付成功后的页面跳转，R 的成功码是 200
-    if (response.code === 200) {
+    if (response.data) {
+      console.log(response.message)
       clearInterval(timer)
       // 三秒后跳转到订单列表
-      setTimeout(() => router.push('/orders'), 3000)
+      setTimeout(() => router.push('/orders'), 1000)
     }
   })
 }

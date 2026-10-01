@@ -117,6 +117,7 @@ function closeDialog () {
 function toRefunds () {
   refundSubmitBtnDisabled.value = true //禁用按钮，防止重复提交
   wxPayApi.refunds(orderNo.value, reason.value).then(() => {
+    ElMessage.success("退款申请提交成功")
     closeDialog()
     showOrderList()
   })
