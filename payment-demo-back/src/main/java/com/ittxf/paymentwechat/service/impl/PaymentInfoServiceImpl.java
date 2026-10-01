@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +27,6 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
 
         log.info("创建支付信息");
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
             Map plainTextMap = objectMapper.readValue(plainText, HashMap.class);
 
@@ -41,9 +38,10 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper, Payme
             String tradeType = (String) plainTextMap.get("trade_type");
             // 获取交易状态
             String tradeState = (String) plainTextMap.get("trade_state");
-            // 获取用户实际支付金额
-            Map<String, Object> amount = (Map) plainTextMap.get("payer_total");
-            Integer payerTotal = ((BigDecimal) amount.get("payer_total")).intValue();
+            // 获取用户实际支付金额：payer_total 不是顶层字段，嵌套在 amount 子对象里
+            Map<String, Object> amount = (Map) plainTextMap.get("amount");
+            // amount 子对象内的金额为整数，Jackson 反序列化为 Integer，用 Number 统一取 int 值
+            Integer payerTotal = ((Number) amount.get("payer_total")).intValue();
 
 
             PaymentInfo paymentInfo = new PaymentInfo();

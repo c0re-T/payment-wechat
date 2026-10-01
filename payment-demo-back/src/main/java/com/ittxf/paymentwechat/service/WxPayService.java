@@ -24,4 +24,25 @@ public interface WxPayService {
     Map<String, Object> nativePay(Long productId);
 
     void processOrder(Map<String, Object> bodyMap);
+
+    void cancelOrder(String orderNo);
+
+    String queryOrder(String orderNo);
+
+    String checkOrderStatus(String orderNo);
+
+    void refund(String orderNo, String reason);
+
+    String queryRefund(String orderNo);
+
+    /**
+     * 处理微信退款异步通知：解密报文、按退款状态更新本地订单与退款单
+     *
+     * @param bodyMap 已解析的退款通知外层报文
+     */
+    void processRefund(Map<String, Object> bodyMap);
+
+    String queryBill(String billDate, String type);
+
+    String downloadBill(String billDate, String type);
 }

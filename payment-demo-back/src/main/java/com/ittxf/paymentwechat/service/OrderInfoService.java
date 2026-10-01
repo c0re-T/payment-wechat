@@ -15,4 +15,10 @@ public interface OrderInfoService extends IService<OrderInfo> {
     List<OrderInfo> listOrderByCreateTimeDesc();
 
     void updateStatusByOrderNo(String outTradeNo, OrderStatus orderStatus);
+
+    String getOrderStatus(String outTradeNo);
+
+    List<OrderInfo> getNoPayOrderByDuration(int i);
+
+    OrderInfo getOrderByOrderNo(String orderNo);
 }

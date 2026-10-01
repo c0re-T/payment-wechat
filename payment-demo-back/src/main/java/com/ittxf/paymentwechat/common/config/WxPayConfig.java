@@ -43,7 +43,7 @@ import java.security.PrivateKey;
  */
 @Configuration
 @PropertySource("classpath:wxpay.properties") //读取配置文件
-@ConfigurationProperties(prefix="wxpay") //读取wxpay节点
+@ConfigurationProperties(prefix="wxpay") //读取wxpay前缀的配置项
 @Data //使用set方法将wxpay节点中的值填充到当前类的属性中
 @Slf4j
 public class WxPayConfig {

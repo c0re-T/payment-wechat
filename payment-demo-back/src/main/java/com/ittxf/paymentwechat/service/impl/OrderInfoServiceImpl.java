@@ -2,7 +2,12 @@ package com.ittxf.paymentwechat.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ittxf.paymentwechat.common.config.WxPayConfig;
 import com.ittxf.paymentwechat.common.enums.OrderStatus;
+import com.ittxf.paymentwechat.common.enums.wxpay.WxApiType;
+import com.ittxf.paymentwechat.common.exception.BusinessException;
 import com.ittxf.paymentwechat.common.util.OrderNoUtils;
 import com.ittxf.paymentwechat.entity.OrderInfo;
 import com.ittxf.paymentwechat.entity.Product;
@@ -12,9 +17,19 @@ import com.ittxf.paymentwechat.service.OrderInfoService;
 import com.baomidou.mybatisplus.spring.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 订单业务实现。
@@ -119,6 +134,51 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         this.lambdaUpdate().eq(OrderInfo::getOrderNo, outTradeNo)
                 .set(OrderInfo::getOrderStatus, orderStatus.getType())
                 .update();
+    }
+
+    /**
+     * 根据订单号获取订单
+     * @param orderNo
+     * @return
+     */
+    @Override
+    public OrderInfo getOrderByOrderNo(String orderNo) {
+        return this.lambdaQuery()
+                .eq(OrderInfo::getOrderNo, orderNo)
+                .one();
+    }
+
+    /**
+     * 根据订单创建时间超过 i 分钟获取未支付订单列表
+     * @param i
+     * @return
+     */
+    @Override
+    public List<OrderInfo> getNoPayOrderByDuration(int i) {
+        log.info("根据订单创建时间获取未支付订单列表：i={}", i);
+
+        Instant minus = Instant.now().minus(Duration.ofMinutes(i));
+
+        return this.lambdaQuery()
+                .eq(OrderInfo::getOrderStatus, OrderStatus.NOTPAY.getType())
+                .le(OrderInfo::getCreateTime, minus)
+                .list();
+    }
+
+    /**
+     * 根据订单号获取订单状态
+     * @param outTradeNo
+     * @return
+     */
+    @Override
+    public String getOrderStatus(String outTradeNo) {
+        OrderInfo orderInfo = this.lambdaQuery()
+                .eq(OrderInfo::getOrderNo, outTradeNo)
+                .one();
+        if (orderInfo == null) {
+            return null;
+        }
+        return orderInfo.getOrderStatus();
     }
 
     /**
