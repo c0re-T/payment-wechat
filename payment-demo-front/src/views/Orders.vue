@@ -15,6 +15,11 @@
               {{scope.row.totalFee / 100}} 元
           </template>  
         </el-table-column>
+        <el-table-column label="支付方式" width="90">
+          <template #default="scope">
+            {{scope.row.paymentType || '-'}}
+          </template>
+        </el-table-column>
         <el-table-column label="订单状态">
           <template #default="scope">
             <el-tag v-if="scope.row.orderStatus === '未支付'">
@@ -35,13 +40,16 @@
             <el-tag v-if="scope.row.orderStatus === '已退款'" type="info">
               {{scope.row.orderStatus}}
             </el-tag>
+            <el-tag v-if="scope.row.orderStatus === '退款异常'" type="danger">
+              {{scope.row.orderStatus}}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间"></el-table-column>
         <el-table-column label="操作" width="100" align="center">
           <template #default="scope">
-            <el-button v-if="scope.row.orderStatus === '未支付'" type="text" @click="cancel(scope.row.orderNo)">取消</el-button>
-            <el-button v-if="scope.row.orderStatus === '支付成功'" type="text" @click="refund(scope.row.orderNo)">退款</el-button>
+            <el-button v-if="scope.row.orderStatus === '未支付'" type="text" @click="cancel(scope.row.orderNo, scope.row.paymentType)">取消</el-button>
+            <el-button v-if="scope.row.orderStatus === '支付成功'" type="text" @click="refund(scope.row.orderNo, scope.row.paymentType)">退款</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -75,12 +83,20 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import orderInfoApi from '../api/orderInfo'
 import wxPayApi from '../api/wxPay'
+import aliPayApi from '../api/aliPay'
 
 const list = ref([]) //订单列表
 const refundDialogVisible = ref(false) //退款弹窗
 const orderNo = ref('') //退款订单号
 const reason = ref('') //退款原因
 const refundSubmitBtnDisabled = ref(false) //防止重复提交
+const paymentType = ref('') //退款订单的支付渠道
+
+//关单与退款要按订单的支付渠道选择接口，
+//t_payment_info.pay_type 存的是“微信”/“支付宝”文本，取不到渠道的历史订单按微信处理
+function payApiOf (type) {
+  return type === '支付宝' ? aliPayApi : wxPayApi
+}
 
 //显示订单列表
 function showOrderList () {
@@ -90,8 +106,8 @@ function showOrderList () {
 }
 
 //用户取消订单，参数不能叫 orderNo，否则会遮住同名 ref
-function cancel (no) {
-  wxPayApi.cancel(no).then(response => {
+function cancel (no, type) {
+  payApiOf(type).cancel(no).then(response => {
     ElMessage.success(response.message)
     //刷新订单列表
     showOrderList()
@@ -99,9 +115,10 @@ function cancel (no) {
 }
 
 //退款对话框
-function refund (no) {
+function refund (no, type) {
   refundDialogVisible.value = true
   orderNo.value = no
+  paymentType.value = type
 }
 
 //关闭退款对话框
@@ -110,13 +127,14 @@ function closeDialog () {
   //还原组件状态
   orderNo.value = ''
   reason.value = ''
+  paymentType.value = ''
   refundSubmitBtnDisabled.value = false
 }
 
 //确认退款
 function toRefunds () {
   refundSubmitBtnDisabled.value = true //禁用按钮，防止重复提交
-  wxPayApi.refunds(orderNo.value, reason.value).then(() => {
+  payApiOf(paymentType.value).refunds(orderNo.value, reason.value).then(() => {
     ElMessage.success("退款申请提交成功")
     closeDialog()
     showOrderList()

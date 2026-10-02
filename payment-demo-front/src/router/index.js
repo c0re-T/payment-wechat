@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import Index from '../views/index.vue'
 import Orders from '../views/Orders.vue'
 import Download from '../views/Download.vue'
+import Success from '../views/Success.vue'
 
 // 创建并暴露一个路由器
 export default createRouter({
@@ -21,6 +22,11 @@ export default createRouter({
         {
             path: '/download',
             component: Download
+        },
+        //支付宝收银台付款后的回跳落地页，不进导航菜单
+        {
+            path: '/success',
+            component: Success
         }
     ]
 })

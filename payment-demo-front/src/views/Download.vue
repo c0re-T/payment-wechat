@@ -3,7 +3,7 @@
     <section id="index" class="container">
       <header class="comm-title">
         <h2 class="fl tac">
-          <span class="c-333">账单申请</span>
+          <span class="c-333">微信账单申请</span>
         </h2>
       </header>
       
@@ -20,6 +20,26 @@
       </el-form>
     </section>
 
+    <section id="index" class="container">
+      <header class="comm-title">
+        <h2 class="fl tac">
+          <span class="c-333">支付宝账单申请</span>
+        </h2>
+      </header>
+
+      <el-form :inline="true" >
+        <el-form-item>
+            <el-date-picker v-model="billDateAliPay" value-format="YYYY-MM-DD" placeholder="选择账单日期" />
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" @click="downloadBillAliPay('trade')">下载交易账单</el-button>
+        </el-form-item>
+         <el-form-item>
+            <el-button type="primary" @click="downloadBillAliPay('signcustomer')">下载资金账单</el-button>
+        </el-form-item>
+      </el-form>
+    </section>
+
   </div>
 </template>
 
@@ -28,9 +48,10 @@ import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import billApi from '../api/bill'
 
-const billDate = ref('') //账单日期
+const billDate = ref('') //微信支付账单日期
+const billDateAliPay = ref('') //支付宝账单日期
 
-//下载账单
+//下载账单：微信支付
 function downloadBill (type) {
   if (!billDate.value) {
     ElMessage.warning('请先选择账单日期')
@@ -52,6 +73,26 @@ function downloadBill (type) {
     //下载完清理，避免内存泄漏
     document.body.removeChild(element)
     window.URL.revokeObjectURL(url)
+  })
+}
+
+//下载账单：支付宝
+function downloadBillAliPay (type) {
+  if (!billDateAliPay.value) {
+    ElMessage.warning('请先选择账单日期')
+    return
+  }
+  //支付宝的账单文件不在本地，后端 R.data 即账单下载地址，交给浏览器直接下载
+  billApi.downloadBillAliPay(billDateAliPay.value, type).then(response => {
+    const element = document.createElement('a')
+    element.href = response.data
+    //跨域链接上的 download 属性浏览器不认，只能新开标签页由支付宝决定文件名
+    element.target = '_blank'
+    element.rel = 'noopener'
+    element.style.display = 'none'
+    document.body.appendChild(element)
+    element.click()
+    document.body.removeChild(element)
   })
 }
 </script>

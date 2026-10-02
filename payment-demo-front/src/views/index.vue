@@ -14,6 +14,7 @@
       </div>
     </section>
 
+    <!-- 主体内容 -->
     <section id="index" class="container">
       <div class="checkout">
         <!-- 左栏：课程与支付方式 -->
@@ -36,6 +37,7 @@
             </li>
           </ul>
 
+          <!--支付方式-->
           <header class="comm-title">
             <h2><span class="c-333">支付方式</span></h2>
           </header>
@@ -107,9 +109,9 @@
 <script setup>
 import { ref, reactive, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
 import productApi from '../api/product'
 import wxPayApi from '../api/wxPay'
+import aliPayApi from '../api/aliPay'
 import orderInfoApi from '../api/orderInfo'
 import wxpayIcon from '../assets/img/wxpay.png'
 import alipayIcon from '../assets/img/alipay.png'
@@ -180,8 +182,26 @@ function toPay () {
     return
   }
 
-  //支付宝支付尚未接入，避免按钮被禁用后无法恢复
-  ElMessage.info('支付宝支付通道暂未开通，请先使用微信支付')
+  //支付宝支付：下单后把收银台表单提交出去，页面由支付宝接管，所以不弹二维码也不轮询
+  payBtnDisabled.value = true
+  aliPayApi.tradePagePay(payOrder.productId).then(response => {
+    submitAliPayForm(response.data)
+  }).catch(() => {
+    //下单失败要恢复按钮，否则停在禁用状态上，错误提示已由 axios 拦截器统一弹出
+    payBtnDisabled.value = false
+  })
+}
+
+// 支付宝返回的是自动提交的 form 字符串，写进临时节点后手动 submit；
+// 不用 document.write，避免清空当前 SPA 文档后表单脚本没跑起来变成白屏
+function submitAliPayForm (formStr) {
+  const holder = document.createElement('div')
+  // 将 form 字符串解析为 DOM 节点
+  holder.innerHTML = formStr
+  // 将解析后的 DOM 节点添加到页面中
+  document.body.appendChild(holder)
+  // 提交表单
+  holder.querySelector('form').submit()
 }
 
 //关闭微信支付二维码对话框时启用“确认支付”按钮
