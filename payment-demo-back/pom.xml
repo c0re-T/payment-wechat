@@ -75,6 +75,12 @@
             <artifactId>wechatpay-apache-httpclient</artifactId>
             <version>0.4.0</version>
         </dependency>
+        <!--支付宝 SDK-->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.40.1026.ALL</version>
+        </dependency>
 
     </dependencies>
 

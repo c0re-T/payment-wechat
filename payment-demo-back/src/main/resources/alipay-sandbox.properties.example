@@ -1,0 +1,38 @@
+# 支付宝支付参数模板
+#
+# 使用方式：复制本文件为同目录下的 alipay-sandbox.properties，再填入你自己应用的凭证。
+#   cp alipay-sandbox.properties.example alipay-sandbox.properties
+#
+# 文件名固定为 alipay-sandbox.properties：AlipayClientConfig 用
+#   @PropertySource("classpath:alipay-sandbox.properties") 加载，改名会导致启动即失败。
+#
+# 安全提醒：
+#   1. alipay-sandbox.properties 已在 .gitignore 中排除，切勿提交到仓库；
+#   2. 应用私钥一旦泄露，持有者可冒用你的身份发起请求，需立即在开放平台重置；
+#   3. 以下值必须是你在支付宝开放平台创建的自有应用凭证，借用他人 APPID 既不可用也不合规。
+
+# 应用 APPID，收款账号即该 APPID 对应的支付宝账号
+alipay.app-id=你的APPID
+
+# 商户 PID（卖家支付宝账号 ID），回调处理时用于二次校验 seller_id
+alipay.seller-id=你的商户PID
+
+# 支付宝网关：沙箱环境如下，生产环境改为 https://openapi.alipay.com/gateway.do
+alipay.gateway-url=https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+# 应用私钥，RSA2，PKCS8 格式（由支付宝开放平台助手生成，切勿提交）
+alipay.merchant-private-key=你的RSA2应用私钥
+
+# 支付宝公钥（注意不是应用公钥），对应 APPID 下「支付宝公钥」一栏
+alipay.alipay-public-key=你的支付宝公钥
+
+# 接口内容加密密钥（对称），仅在开启内容加密的接口上使用，本项目当前未涉及
+alipay.content-key=你的内容加密密钥
+
+# 页面支付完成后支付宝把浏览器带回的前端地址
+# 前端是 vue-router history 模式，不带 #；本地即 Vite 的 5173 端口
+alipay.return-url=http://localhost:5173/success
+
+# 服务器异步通知地址：需 http(s) 完整路径，不能带 ?id=123 之类的自定义参数，且必须公网可访问
+# 本地联调借助 ngrok 等内网穿透，每次隧道地址变化后都要同步修改此处
+alipay.notify-url=https://你的公网域名/api/ali-pay/trade/notify

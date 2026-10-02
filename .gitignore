@@ -21,9 +21,11 @@ Thumbs.db
 ### 设计稿原图（ImageGen 产物，非代码）
 vibe_images/
 
-### 微信支付敏感凭证（严禁提交到仓库）
+### 支付敏感凭证（严禁提交到仓库）
 # 商户 API 参数：含商户号、证书序列号、APIv3 与 APIv2 密钥
 payment-demo-back/src/main/resources/wxpay.properties
+# 支付宝应用参数：含应用 RSA2 私钥、支付宝公钥与内容加密密钥
+payment-demo-back/src/main/resources/alipay-sandbox.properties
 # 商户 API 证书与私钥（apiclient_key.pem / apiclient_cert.pem 等）
 *.pem
 # 参考模板：新增同类凭证时，只提交 .example 占位文件，真实文件一律纳入此处
